@@ -1,10 +1,13 @@
-data_location = file.path(".", "salaries.csv")
+#data_location = file.path(".", "salaries.csv")
+
+data_location <- "j:\\Desktop\\projekt-przetw\\RProject\\data set\\salaries.csv"
+
 
 data <- read.csv(data_location)
 
 library(dplyr)
 
-str(data)
+
 
 job_titles_groups <- c("Data Science and AI/ML", "Analytics or BI", "Big Data and Cloud", "Data Management and Operations", "Data Quality and Architectural","Visualization, Management, and Specialized")
 #regexps done by chatGPT, i trust him more then I trust myself when it comes to regular exp
@@ -52,7 +55,7 @@ clean_data <- data %>%
          ) %>%
   #grouping job_titles for clarity
           #should we group data using group_by()? 
-    mutate(job_title = case_when(
+    mutate(job_group = case_when(
       #group 1
       grepl(regex_group1,
             job_title
@@ -78,14 +81,12 @@ clean_data <- data %>%
                                 )
            ) %>%
   #now i guess job_title can be used as factor?
-  mutate(job_title = factor(job_title,
-                            levels = job_titles_groups)
-         ) %>%
+  # mutate(job_title = factor(job_title,
+  #                           levels = job_titles_groups)
+  #        ) %>%
   #changing job_title name to field
-  rename(field = job_title) %>%
+  # rename(field = job_title) %>%
   #ordering by year, then salary?
   arrange(year, salary)
-  
-
-str(clean_data)
+ 
 
