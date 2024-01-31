@@ -60,6 +60,7 @@ ui <- fluidPage(
       #plot corresponding to the map
       plotOutput("map_plot")
     )
+    
   
     )
   )
@@ -73,19 +74,21 @@ ui <- fluidPage(
 #####Server
 server <- function(input, output, session) {
   
-
   
   #1st plot
   output$line_plot <- renderPlot({
     clean_data %>%
       group_by(job_group, year) %>%
-      summarise(Avreage_Salary = mean(salary)) %>%
+      summarise(Avreage_Salary = mean(salary, na.rm = TRUE)) %>%
       filter(job_group == input$field_of_work) %>%
       ggplot(aes(x = year, y = Avreage_Salary)) +
+      geom_area(fill = "#9933FF", alpha = 5/10) +
       geom_line() +
       labs(x = "YEAR", y = "AVREAGE SALARY") +
-      geom_area(fill = "#9933FF", alpha = 5/10) +
-      theme_minimal()
+      
+      theme_minimal() +
+      geom_label(aes(label = paste(round(Avreage_Salary/1000), "K")), label.padding =) +
+      scale_y_continuous(limits = c(0, 250000))
     
     
   })
@@ -149,8 +152,10 @@ server <- function(input, output, session) {
       clean_data %>%
         filter(employee_residence == country_code) %>%
         count(work_type) -> data_to_plot
-        ggplot(data_to_plot,aes(x = work_type, y = n, fill = work_type)) +
-        geom_bar(stat = "identity")
+        ggplot(data_to_plot,aes(x = "", y = n, fill = work_type)) +
+        geom_bar(stat = "identity", width = 1) +
+        theme_void() +
+          coord_polar(theta = "y") # Convert to pie chart
     })
     })
   
