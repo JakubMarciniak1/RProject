@@ -6,7 +6,7 @@ library(leaflet)
 
 ##TODO: custom_theme for plots
 
-
+options(shiny.launch.browser = TRUE)
 countries <- DescTools::d.countries
 
 setwd("C:\\Users\\calko\\OneDrive\\Pulpit")
@@ -127,15 +127,32 @@ server <- function(input, output, session) {
       group_by(employee_residence) %>%
       summarise(count = n()) %>%
       left_join(countries, by = c("employee_residence" = "a2"))
+      
+   
     
       leaflet(mapdata) %>%
       addTiles() %>%
-      addCircles(lng = ~longitude,
+      addCircleMarkers(lng = ~longitude,
                  lat = ~latitude,
-                 radius = ~sqrt(count) * 50000)
+                 radius = ~sqrt(count),
+                 layerId = ~employee_residence)
      
   })
   
+  #click
+  observeEvent(input$map_marker_click, {
+    print(input$map_marker_click$id)
+    country_code <- input$map_marker_click$id
+    print(paste("Country code clicked:", country_code))
+    
+    output$map_plot <- renderPlot({
+      clean_data %>%
+        filter(employee_residence == country_code) %>%
+        count(work_type) -> data_to_plot
+        ggplot(data_to_plot,aes(x = work_type, y = n, fill = work_type)) +
+        geom_bar(stat = "identity")
+    })
+    })
   
 }
 
