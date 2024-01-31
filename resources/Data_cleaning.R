@@ -1,6 +1,7 @@
 #data_location = file.path(".", "salaries.csv")
+setwd("C:\\Users\\calko\\OneDrive\\Pulpit")
 
-data_location <- "j:\\Desktop\\projekt-przetw\\RProject\\data set\\salaries.csv"
+data_location <- ".\\RProject\\data set\\salaries.csv"
 
 
 data <- read.csv(data_location)
