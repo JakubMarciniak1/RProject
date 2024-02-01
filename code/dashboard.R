@@ -71,8 +71,12 @@ ui <- dashboardPage(
     ),
     column(4,
            #plot corresponding to the map
-           plotOutput("map_plot")
+           plotOutput("map_plot"),
            
+           fluidRow(
+           infoBoxOutput("min_salary", width = 6),
+           infoBoxOutput("max_salary", width = 6)
+           )
            
     )
     
@@ -224,7 +228,60 @@ server <- function(input, output, session) {
           coord_polar(theta = "y") # Convert to pie chart
     
     })
+    
+    
+    output$min_salary <- renderValueBox({
+      if(country_code() == "Global") {
+        infoBox_data <- clean_data
+        country_name <- country_code()
+      } else {
+        infoBox_data <- clean_data %>% filter(employee_residence == country_code())
+        country <- countries %>%
+          filter(a2 == country_code())
+        country_name <- country$name
+      }
+      
+      
+      min_list <- infoBox_data %>%
+        filter(salary == min(salary)) %>%
+        summarise(job_title = first(job_title), min_salary = first(salary)) %>%
+        as.list()
+      
+      valueBox(paste(round(min_list$min_salary/1000), "K $"),
+        subtitle = HTML(paste("Minimum salary in",country_name ,"<br><small style='font-size: 12px;'>Position:", min_list$job_title)),
+        icon = icon("angle-down"),
+        color = "blue"
+      )
+      
+      
+    })
   
+    
+    output$max_salary <- renderValueBox({
+      if(country_code() == "Global") {
+        infoBox_data <- clean_data
+        country_name <- country_code()
+      } else {
+        infoBox_data <- clean_data %>% filter(employee_residence == country_code())
+        country <- countries %>%
+          filter(a2 == country_code())
+        country_name <- country$name
+        }
+      
+      max_list <- infoBox_data %>%
+        filter(salary == max(salary)) %>%
+        summarise(job_title = first(job_title), max_salary = first(salary)) %>%
+        as.list()
+      
+      valueBox(paste(round(max_list$max_salary/1000), "K $"),
+               subtitle = HTML(paste("Maximum salary in",country_name ,"<br><small style='font-size: 12px;'>Position:", max_list$job_title)),
+               icon = icon("angle-up"),
+               color = "green"
+      )
+      
+      
+    })
+    
 }
 
 
