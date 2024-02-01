@@ -22,16 +22,7 @@ ui <- fluidPage(
   theme = bs_theme(bootswatch = "lux"),
   fluidRow(
     column(4, 
-           selectInput("field_of_work", NULL, choices = job_titles_groups)
-    ),
-    column(4,
-           checkboxGroupInput("year", NULL, choices = 2020:2024, selected = 2024, inline = TRUE)
-    )
-    
-  ),       
-  fluidRow(
-    
-    column(4,
+           selectInput("field_of_work", NULL, choices = append(job_titles_groups, "All fields")),
            
            
            plotOutput("line_plot")
@@ -39,30 +30,39 @@ ui <- fluidPage(
     
     
     column(4,
-           
-           plotOutput("box_plot")
+           #map
+           actionButton("reset_button", "Reset to global data"),
+           leafletOutput("map")
     ),
+    
+    column(4,
+           checkboxGroupInput("year", NULL, choices = 2020:2024, selected = 2024, inline = TRUE),
+    
+           plotOutput("box_plot")
+           )
+    
+  ),       
+  fluidRow(
+    
+   
+    
+   
     
     
     column(4,
            plotOutput("histogram")
+    ),
+    column(4,
+           #plot corresponding to the map
+           plotOutput("map_plot")
+           
+           
     )
+    
     
   ),              
                 
-               
-  fluidRow(
-    column(4,
-      #map     
-      leafletOutput("map")
-    ),
-    column(4,
-      #plot corresponding to the map
-      plotOutput("map_plot")
-    )
-    
   
-    )
   )
 
 
@@ -75,12 +75,25 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   
-  #1st plot
+  #line plot
   output$line_plot <- renderPlot({
-    clean_data %>%
-      group_by(job_group, year) %>%
+    
+    filtered_data <- if(input$field_of_work != "All fields") {
+      clean_data %>% 
+        group_by(job_group, year) %>%
+        filter(job_group == input$field_of_work)
+        
+    } else {
+      clean_data %>%
+        group_by(year)
+    }
+    
+    
+    
+    
+    filtered_data %>%
+     
       summarise(Avreage_Salary = mean(salary, na.rm = TRUE)) %>%
-      filter(job_group == input$field_of_work) %>%
       ggplot(aes(x = year, y = Avreage_Salary)) +
       geom_area(fill = "#9933FF", alpha = 5/10) +
       geom_line() +
@@ -88,13 +101,13 @@ server <- function(input, output, session) {
       
       theme_minimal() +
       geom_label(aes(label = paste(round(Avreage_Salary/1000), "K")), label.padding =) +
-      scale_y_continuous(limits = c(0, 250000))
+      scale_y_continuous(limits = c(0, 200000))
     
     
   })
   
   
-  #2nd plot
+  #boxplot
   output$box_plot <- renderPlot({
     
     purple_palette <- c("#C8A2C8", "#8A2BE2", "#9400D3")    
@@ -111,10 +124,23 @@ server <- function(input, output, session) {
   })
   
   
-  #3rd plot
-  salary_ranges <- c(0, 50000, 200000, 350000, 500000, 750000)
+  #histogram
+  
   output$histogram <- renderPlot({
-    clean_data %>%
+    
+    salary_ranges <- c(0, 50000, 200000, 350000, 500000, 750000)
+    
+    filtered_data <- if(input$field_of_work != "All fields") {
+      clean_data %>% 
+        filter(job_group == input$field_of_work)
+      
+    } else {
+      clean_data
+    }
+    
+    
+    
+    filtered_data %>%
     ggplot(aes(x = salary)) +
     geom_histogram(color = "darkslategrey", fill = "darkslategray3") +
     scale_y_sqrt() +
@@ -125,6 +151,8 @@ server <- function(input, output, session) {
   
   
   #map
+  country_code <- reactiveVal("Global")
+  
   output$map <- renderLeaflet({
     mapdata <-clean_data %>%
       group_by(employee_residence) %>%
@@ -143,20 +171,37 @@ server <- function(input, output, session) {
   })
   
   #click
+  observeEvent(input$reset_button ,{
+    country_code("Global")
+  })
+  
+  
   observeEvent(input$map_marker_click, {
-    print(input$map_marker_click$id)
-    country_code <- input$map_marker_click$id
-    print(paste("Country code clicked:", country_code))
-    
+    print(input$map_marker_click$id) #debug
+    country_code(input$map_marker_click$id) #changing reactiveVal on click
+    print(paste("Country code clicked:", country_code())) #debug
+  })
+  
+  
     output$map_plot <- renderPlot({
-      clean_data %>%
-        filter(employee_residence == country_code) %>%
-        count(work_type) -> data_to_plot
-        ggplot(data_to_plot,aes(x = "", y = n, fill = work_type)) +
+      
+      map_data <- if(country_code() == "Global"){
+        clean_data %>%
+          count(work_type)
+      }
+      else {
+        clean_data %>%
+          filter(employee_residence == country_code()) %>%
+          count(work_type)
+      }
+      
+      
+      
+        ggplot(map_data, aes(x = "", y = n, fill = work_type)) +
         geom_bar(stat = "identity", width = 1) +
         theme_void() +
           coord_polar(theta = "y") # Convert to pie chart
-    })
+    
     })
   
 }
