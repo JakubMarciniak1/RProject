@@ -4,6 +4,7 @@ library(shinydashboard)
 library(bslib)
 library(ggplot2)
 library(leaflet)
+library(shinythemes)
 
 ##TODO: custom_theme for plots
 
@@ -19,6 +20,7 @@ source(data_clean) #executing the data cleaning script
 
 ###UI
 ui <- dashboardPage(
+  
   dashboardHeader( title = "Data Salaries 2020-2024"),
   
   
@@ -33,7 +35,7 @@ ui <- dashboardPage(
   dashboardBody(
   
   tabItems(
-  #theme = bs_theme(bootswatch = "lux"),
+  
     
   tabItem(tabName = "dashboard",  
     
@@ -78,7 +80,10 @@ ui <- dashboardPage(
            infoBoxOutput("max_salary", width = 6)
            )
            
-    )
+    ),
+    column(4,
+           plotOutput("bar_plot")
+           )
     
     
   ),              
@@ -93,7 +98,8 @@ ui <- dashboardPage(
 )
 
 
-))
+),
+)
 
 
 #####Server
@@ -281,7 +287,18 @@ server <- function(input, output, session) {
       
       
     })
+  
     
+    output$bar_plot <- renderPlot({
+      clean_data %>%
+        group_by(experience_level, year) %>%
+        filter(year %in% input$year) %>%
+        summarise(mean_salary = mean(salary)) %>%
+        ggplot(aes(x = experience_level, y = mean_salary, fill = experience_level)) +
+        geom_col() +
+        theme(legend.position = "none")
+    })
+      
 }
 
 
