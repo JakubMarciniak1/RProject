@@ -1,25 +1,42 @@
 ####Shiny
 library(shiny)
+library(shinydashboard)
 library(bslib)
 library(ggplot2)
 library(leaflet)
 
 ##TODO: custom_theme for plots
 
-options(shiny.launch.browser = TRUE)
-countries <- DescTools::d.countries
+options(shiny.launch.browser = TRUE) #open in browser instead of rstudio
+countries <- DescTools::d.countries #database with coords for country code
 
-setwd("C:\\Users\\calko\\OneDrive\\Pulpit")
+setwd("C:\\Users\\calko\\OneDrive\\Pulpit") 
 
 data_clean <- ".\\RProject\\resources\\Data_cleaning.R"
 
 ##load data
-source(data_clean)
+source(data_clean) #executing the data cleaning script
 
 ###UI
-ui <- fluidPage(
-  title = "Data Salaries 2020-2024",
-  theme = bs_theme(bootswatch = "lux"),
+ui <- dashboardPage(
+  dashboardHeader( title = "Data Salaries 2020-2024"),
+  
+  
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("Source", tabName = "source", icon = icon("table"))
+    )
+    
+  ),
+  
+  dashboardBody(
+  
+  tabItems(
+  #theme = bs_theme(bootswatch = "lux"),
+    
+  tabItem(tabName = "dashboard",  
+    
   fluidRow(
     column(4, 
            selectInput("field_of_work", NULL, choices = append(job_titles_groups, "All fields")),
@@ -63,12 +80,16 @@ ui <- fluidPage(
   ),              
                 
   
-  )
+  ),
+  
+  tabItem(tabName = "source",
+          dataTableOutput("source_table")
+          )
+
+)
 
 
-
-
-
+))
 
 
 #####Server
