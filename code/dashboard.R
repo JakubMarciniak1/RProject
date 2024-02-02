@@ -5,13 +5,14 @@ library(bslib)
 library(ggplot2)
 library(leaflet)
 library(shinythemes)
+library(DT)
+library(kableExtra)
 
 ## TODO: custom_theme for plots
 
 options(shiny.launch.browser = TRUE) # open in browser instead of rstudio
 countries <- DescTools::d.countries # database with coords for country code
 
-getwd()
 setwd("C:\\Moje rzeczy\\Uczelnia UAM\\matematyka zaoczna\\semestr 3\\Przetwarzanie i wizualizacja danych\\projekty R\\Pati i ja\\RProject")
 
 data_clean <- ".\\resources\\Data_cleaning.R"
@@ -19,16 +20,31 @@ data_clean <- ".\\resources\\Data_cleaning.R"
 ## load data
 source(data_clean) # executing the data cleaning script
 
+# TestingTableStyles
+styled_data <- kbl(data)
+str(data)
+str(styled_data)
+
 ### UI
-ui <- dashboardPage(
-  dashboardHeader(title = "Data Salaries 2020-2024"),
-  dashboardSidebar(
+ui <- dashboardPage( skin = "green",
+  dashboardHeader(title = "Data Salaries 2020-2024", titleWidth = 270),
+  dashboardSidebar(width = 270,
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
       menuItem("Source", tabName = "source", icon = icon("table"))
     )
   ),
   dashboardBody(
+    tags$head(
+      # Note the wrapping of the string in HTML()
+      tags$style(HTML("
+      .datatables { background: white; }
+      .content-wrapper, .right-side {
+    min-height: 100%;
+    background-color: #D1F7FF;
+    z-index: 800;}
+"))
+    ),
     tabItems(
       tabItem(
         tabName = "dashboard",
@@ -81,6 +97,9 @@ ui <- dashboardPage(
 
 ##### Server
 server <- function(input, output, session) {
+  # source table organised
+  output$source_table <- DT::renderDataTable(data)
+
   # line plot
   output$line_plot <- renderPlot({
     filtered_data <- if (input$field_of_work != "All fields") {
