@@ -1,5 +1,5 @@
 # data_location = file.path(".", "salaries.csv")
-setwd("C:\\Moje rzeczy\\Uczelnia UAM\\matematyka zaoczna\\semestr 3\\Przetwarzanie i wizualizacja danych\\projekty R\\Pati i ja\\RProject")
+setwd("C:\\projektUAM\\RProject")
 
 data_location <- ".\\data set\\salaries.csv"
 

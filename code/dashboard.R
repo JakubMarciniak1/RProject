@@ -13,7 +13,7 @@ library(kableExtra)
 options(shiny.launch.browser = TRUE) # open in browser instead of rstudio
 countries <- DescTools::d.countries # database with coords for country code
 
-setwd("C:\\Moje rzeczy\\Uczelnia UAM\\matematyka zaoczna\\semestr 3\\Przetwarzanie i wizualizacja danych\\projekty R\\Pati i ja\\RProject")
+setwd("C:\\projektUAM\\RProject")
 
 data_clean <- ".\\resources\\Data_cleaning.R"
 
@@ -26,7 +26,7 @@ str(data)
 str(styled_data)
 
 ### UI
-ui <- dashboardPage( skin = "green",
+ui <- dashboardPage( skin = "blue",
   dashboardHeader(title = "Data Salaries 2020-2024", titleWidth = 270),
   dashboardSidebar(width = 270,
     sidebarMenu(
@@ -38,11 +38,108 @@ ui <- dashboardPage( skin = "green",
     tags$head(
       # Note the wrapping of the string in HTML()
       tags$style(HTML("
-      .datatables { background: white; }
+      
+      .dataTables_wrapper { padding: 10px }
+      
+      .datatables { background: white; overflow: scroll; }
+      
       .content-wrapper, .right-side {
-    min-height: 100%;
-    background-color: #D1F7FF;
-    z-index: 800;}
+        min-height: 100%;
+        background-color: #C4CCD5;
+      z-index: 800;}
+    
+      .row{
+        margin-bottom: 5px;
+        margin-top: 10px;
+      }
+    
+      #map{
+      
+      }
+      #line_plot{
+      
+      }
+      #box_plot{
+      
+      }
+      #histogram{
+      
+      }
+      #map_plot{
+        height: 400px !important;
+      }
+      #bar_plot{
+      }
+      #year{
+        margin-bottom: 28px;
+      }
+      #min_salary{
+        padding: 0;
+      }
+      #max_salary{
+        padding: 0;
+      }
+      .small-box{
+        min-height: 190px !important;
+      }
+    
+    #reset_button {
+      appearance: none;
+      background-color: #fff;
+      border: 1px solid rgba(27, 31, 35, 0.15);
+      border-radius: 6px;
+      box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+      box-sizing: border-box;
+      color: #24292E;
+      cursor: pointer;
+      display: inline-block;
+      font-family: -apple-system, system-ui, , Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      list-style: none;
+      padding: 6px 16px;
+      position: relative;
+      transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      vertical-align: middle;
+      white-space: nowrap;
+      word-wrap: break-word;
+      margin-bottom: 15px;
+    }
+
+  #reset_button:hover {
+    background-color: #F3F4F6;
+    text-decoration: none;
+    transition-duration: 0.1s;
+  }
+
+  #reset_button:disabled {
+    background-color: #FAFBFC;
+    border-color: rgba(27, 31, 35, 0.15);
+    color: #959DA5;
+    cursor: default;
+  }
+
+  #reset_button:active {
+    background-color: #EDEFF2;
+    box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
+    transition: none 0s;
+  }
+
+  #reset_button:focus {
+    outline: 1px transparent;
+  }
+
+  #reset_button:before {
+    display: none;
+  }
+
+  #reset_button:-webkit-details-marker {
+    display: none;
+  }
 "))
     ),
     tabItems(
@@ -72,17 +169,21 @@ ui <- dashboardPage( skin = "green",
             plotOutput("histogram")
           ),
           column(
-            4,
+            2,
             # plot corresponding to the map
             plotOutput("map_plot"),
-            fluidRow(
-              infoBoxOutput("min_salary", width = 6),
-              infoBoxOutput("max_salary", width = 6)
-            )
+          ),
+          column(
+            2,
+            # plot corresponding to the map
+
+              infoBoxOutput("min_salary", width = 12),
+              infoBoxOutput("max_salary", width = 12)
+          
           ),
           column(
             4,
-            plotOutput("bar_plot")
+            plotOutput("bar_plot"),
           )
         ),
       ),
