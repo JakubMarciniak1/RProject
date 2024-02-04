@@ -221,7 +221,12 @@ server <- function(input, output, session) {
       geom_area(fill = "#9933FF", alpha = 5 / 10) +
       geom_line() +
       labs(x = "YEAR", y = "AVREAGE SALARY") +
-      theme_minimal() +
+      #theme_minimal() +
+      theme(
+        axis.title = element_text(family = "Roboto", size = 12),
+        axis.text = element_text(family = "Roboto", size = 10),
+        plot.title = element_text(family = "Roboto", size = 14, face = "bold")
+      ) +
       geom_label(aes(label = paste(round(Avreage_Salary / 1000), "K")), label.padding = ) +
       scale_y_continuous(limits = c(0, 200000))
   })
@@ -237,7 +242,12 @@ server <- function(input, output, session) {
       geom_boxplot() +
       labs(y = "NUMBER OF EMPLOEES IN COMPANY", x = "SALARY") + # Updating axis labels
       scale_x_log10() +
-      theme_minimal() +
+      #theme_minimal() +
+      theme(
+        axis.title = element_text(family = "Roboto", size = 12),
+        axis.text = element_text(family = "Roboto", size = 10),
+        plot.title = element_text(family = "Roboto", size = 14, face = "bold")
+      ) +
       scale_fill_manual(values = purple_palette) +
       theme(legend.position = "none") # remove legend
   })
@@ -256,10 +266,18 @@ server <- function(input, output, session) {
     }
 
 
-
     filtered_data %>%
       ggplot(aes(x = salary)) +
+      labs(
+        x = "SALARY",
+        y = "COUNT"
+      )+
       geom_histogram(color = "darkslategrey", fill = "darkslategray3") +
+      theme(
+        axis.title = element_text(family = "Roboto", size = 12),
+        axis.text = element_text(family = "Roboto", size = 10),
+        plot.title = element_text(family = "Roboto", size = 14, face = "bold")
+      ) +
       scale_y_sqrt() +
       scale_x_sqrt() +
       scale_x_continuous(trans = "sqrt", breaks = salary_ranges)
@@ -284,7 +302,8 @@ server <- function(input, output, session) {
         lat = ~latitude,
         radius = ~ sqrt(count),
         layerId = ~employee_residence
-      )
+      ) %>%
+      fitBounds(63.720766, 25.533866, -11.718330, 36.037643)
   })
 
   # click
@@ -312,10 +331,16 @@ server <- function(input, output, session) {
 
 
 
-    ggplot(map_data, aes(x = "", y = n, fill = work_type)) +
+    wykres <- ggplot(map_data, aes(x = "", y = n, fill = work_type)) +
       geom_bar(stat = "identity", width = 1) +
-      theme_void() +
+      theme_void(legend.position = "bottom") +
       coord_polar(theta = "y") # Convert to pie chart
+    
+    wykres <- wykres + theme(
+      legend.position = "bottom",
+      legend.direction = "horizontal"
+    )
+    
   })
 
 
@@ -374,6 +399,15 @@ server <- function(input, output, session) {
       filter(year %in% input$year) %>%
       summarise(mean_salary = mean(salary)) %>%
       ggplot(aes(x = experience_level, y = mean_salary, fill = experience_level)) +
+      labs(
+        x = "EXPERIENCE LEVEL",
+        y = "MEAN SALARY"
+      ) +
+      theme(
+        axis.title = element_text(family = "Roboto", size = 12),
+        axis.text = element_text(family = "Roboto", size = 10),
+        plot.title = element_text(family = "Roboto", size = 14, face = "bold")
+      ) +
       geom_col() +
       theme(legend.position = "none")
   })
