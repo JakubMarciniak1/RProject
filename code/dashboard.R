@@ -239,9 +239,10 @@ server <- function(input, output, session) {
       group_by(company_size, year) %>%
       filter(year %in% input$year) %>%
       ggplot(aes(y = company_size, x = salary, fill = company_size)) + # Swapping x and y
+      #scale_y_discrete(labels = scales::number_format(scale = 1e-3, suffix = "k")) +
       geom_boxplot() +
       labs(y = "NUMBER OF EMPLOEES IN COMPANY", x = "SALARY") + # Updating axis labels
-      scale_x_log10() +
+      scale_x_log10(labels = scales::number_format(scale = 1e-3, suffix = "k")) +
       #theme_minimal() +
       theme(
         axis.title = element_text(family = "Roboto", size = 12),
@@ -331,15 +332,22 @@ server <- function(input, output, session) {
 
 
 
-    wykres <- ggplot(map_data, aes(x = "", y = n, fill = work_type)) +
+    pie_chart <- ggplot(map_data, aes(x = "", y = n, fill = work_type)) +
       geom_bar(stat = "identity", width = 1) +
-      theme_void(legend.position = "bottom") +
+      labs(color = "abcds") +
+      theme_void() +
       coord_polar(theta = "y") # Convert to pie chart
     
-    wykres <- wykres + theme(
+    
+    pie_chart + theme(
       legend.position = "bottom",
-      legend.direction = "horizontal"
-    )
+      legend.direction = "vertical",
+      legend.text = element_text(family = "Roboto", size = 12),
+      legend.title = element_text(family = "Roboto", size = 12),
+    ) + guides(fill = guide_legend(title = NULL))
+    
+    
+  
     
   })
 
@@ -408,10 +416,13 @@ server <- function(input, output, session) {
         axis.text = element_text(family = "Roboto", size = 10),
         plot.title = element_text(family = "Roboto", size = 14, face = "bold")
       ) +
+      scale_y_continuous(labels = scales::number_format(scale = 1e-3, suffix = "k")) +
       geom_col() +
       theme(legend.position = "none")
+    
   })
 }
+
 
 
 
